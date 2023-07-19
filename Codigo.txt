@@ -1,0 +1,146 @@
+ #define B0 PORTB.RB0
+ #define B1 PORTB.RB1
+ #define B2 PORTB.RB2
+ #define B3 PORTB.RB3
+ #define SAIDA PORTD
+ #define C4 PORTC.RC4
+ #define C5 PORTC.RC5
+
+
+
+
+char Display[] = { 63, 6, 91, 79, 102, 109, 125, 7, 127, 111 };
+
+char contagem;
+int trava=0,num, flag;  //usado para salvar o estado do botao
+char Unidades; //usado para guardar o digito das unidades
+char Dezenas; //usado para guardar o digito das dezanas
+
+void interrupt ()
+     {
+
+                if(INTCON.TMR0IF==1)
+                {
+
+
+
+
+                       if(flag==1)
+                       {
+                       contagem++;
+                                  if(contagem==40)
+                                  {
+                                  num--;
+                                  contagem =0;
+
+                                  }
+
+
+
+
+                       }
+
+                       TMR0=61;
+                       INTCON.TMR0IF=0;
+
+                }
+      }
+
+display_dezenas()
+      {
+                C4=1;
+                Dezenas=(num/10);
+                SAIDA=Display[Dezenas];
+                delay_ms(5);
+                C4=0;
+                SAIDA=0;
+
+
+      }
+
+display_unidades()
+      {
+                C5=1;
+                Unidades=(num%10);
+                SAIDA=Display[Unidades];
+                delay_ms(5);
+                C5=0;
+                SAIDA=0;
+
+
+      }
+      fim()
+      {
+      SAIDA=63;
+      C4=0;
+      C5=0;
+      delay_ms(500);
+      C4=1;
+      C5=1;
+      delay_ms(500);
+      }
+
+void main()
+     {
+
+            ADCON1=7;
+            TRISD=0;
+            PORTD=0;
+            TRISB=255;
+            PORTB=255;
+            TRISA.RA4=1;
+            PORTA.RA4=1;
+            TRISC=0;
+            PORTC=0;
+            INTCON.GIE=1;                               //HABILITA INTERRUPÇÃO GLOBAL
+            INTCON.PEIE=0;
+            INTCON.TMR0IE=1;                             //HABILITA TIMER 0
+            TMR0=61;
+            INTCON.TMR0IF=0;
+            OPTION_REG=0b10000111;                      //HABILITA PRE ESCALER PARA 256
+                                                        //TEMPO 0,5 MICRO *(256-6) = 1ms
+
+            while(1)
+            {
+
+                 if(B1==0       ||              B2==0)
+                       {
+
+                       flag=1;
+                       }
+                       if( B2==0            &&        flag==1)
+                       {
+                       flag=0;
+                       }
+
+
+
+
+                   if( B0==0)
+                   {
+                            num++;
+                            delay_ms(250);
+
+
+                   }
+                   if(num==100)
+                   {
+                   num=0;
+                   }          if(num>=0)
+                              {
+                              display_dezenas();
+                              display_unidades();
+                              }
+
+                              if(num<=0)
+                              {
+                              flag=0;
+                              num=0;
+                              fim();
+                              }
+
+
+
+            }
+
+     }

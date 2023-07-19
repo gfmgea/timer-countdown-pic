@@ -1,0 +1,11 @@
+main
+	__CC2DW
+		____DoICP
+	display_dezenas
+		Div_16x16_S
+			Div_16x16_S_L
+	display_unidades
+		Div_16x16_S
+			Div_16x16_S_L
+	fim
+interrupt
